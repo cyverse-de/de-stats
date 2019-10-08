@@ -10,6 +10,6 @@ de-stats: swagger.json
 	go build
 
 clean:
-	rm -f swagger.json de-stats
+	rm -rf swagger.json de-stats vendor
 
 .PHONY: install-swagger clean all
