@@ -18,3 +18,5 @@ COPY --from=0 /go/src/github.com/cyverse-de/de-stats/de-stats /bin/de-stats
 COPY --from=0 /go/src/github.com/cyverse-de/de-stats/swagger.json swagger.json
 
 ENTRYPOINT ["de-stats"]
+
+EXPOSE 8080
