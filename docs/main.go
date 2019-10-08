@@ -1,9 +1,10 @@
-// Package docs Documentation of the DE Stats API
+// Package docs DE Statistics API
+//
+// Documentation of the DE Stats API
 //
 //     Schemes: http
 //     BasePath: /
 //     Version: 1.0.0
-//     Host: some-url.com
 //
 //     Consumes:
 //     - application/json
