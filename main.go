@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/cyverse-de/de-stats/api"
-	"github.com/cyverse-de/de-stats/redoc"
+	"github.com/cyverse-de/echo-middleware/redoc"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
