@@ -1,4 +1,4 @@
-package main
+package cron
 import (
 	//"bufio"
 	//"bytes"
@@ -22,7 +22,7 @@ const (
 	folder  = "/tmp"
 	logfile = "logs-stdout-output"
 )
-func main(){
+func InitDB() *sql.DB{
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"dbname=%s sslmode=disable", host, port, user, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
@@ -31,16 +31,52 @@ func main(){
 		panic(err)
 	}
 
-	defer db.Close()
-
 	err = db.Ping()
 	if err != nil {
 		panic(err)
 	}
 
-
+	return db
 }
 
 func getAllApps(db *sql.DB){
-	query := "SELECT * FROM APPS"
+	var name *string
+	query := "SELECT name FROM apps where deleted = false"
+
+	rows, err := db.Query(query)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next(){
+		err := rows.Scan(&name)
+		if err != nil {
+			panic(err)
+		}
+		output := fmt.Sprintf("App name %[1]v", getStringValue(name))
+		fmt.Println(output)
+
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
 }
+
+func getStringValue(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
+}
+
+
+func main(){
+	db := InitDB()
+	defer db.Close()
+	getAllApps(db)
+}
+
