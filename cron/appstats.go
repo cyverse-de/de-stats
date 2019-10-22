@@ -4,6 +4,7 @@ import (
 	//"bytes"
 	"database/sql"
 	"fmt"
+
 	//"io"
 	//"os"
 	//"path/filepath"
@@ -13,6 +14,12 @@ import (
 
 	_ "github.com/lib/pq"
 )
+type App struct {
+	Name	string
+	ID		string
+	Count	int
+
+}
 
 const (
 	host	= "trotter.cyverse.org"
@@ -39,11 +46,18 @@ func InitDB() *sql.DB{
 	return db
 }
 
-func getAllApps(db *sql.DB){
+func GetTopApps(db *sql.DB, amount int, days int) []App{
 	var name *string
-	query := "SELECT name FROM apps where deleted = false"
+	var appID string
+	var appCount int
 
-	rows, err := db.Query(query)
+	query := `SELECT app_name, app_id, count(*) AS job_count FROM jobs
+           WHERE start_date >= (now() - interval '1 days')
+           AND app_id != '1e8f719b-0452-4d39-a2f3-8714793ee3e6'
+           GROUP BY app_name, app_id
+           ORDER BY job_count DESC
+           LIMIT $1`
+	rows, err := db.Query(query, amount)
 
 	if err != nil {
 		panic(err)
@@ -51,12 +65,16 @@ func getAllApps(db *sql.DB){
 
 	defer rows.Close()
 
-	for rows.Next(){
-		err := rows.Scan(&name)
+	apps := make([]App, amount)
+	for i := 0; rows.Next(); i++{
+		err := rows.Scan(&name, &appID, &appCount)
 		if err != nil {
 			panic(err)
+			break
 		}
-		output := fmt.Sprintf("App name %[1]v", getStringValue(name))
+
+		apps[i] = App{getStringValue(name), appID, appCount}
+		output := fmt.Sprintf("App name %[1]v App ID %[2]v App Count %[3]v", getStringValue(name), appID, appCount)
 		fmt.Println(output)
 
 	}
@@ -64,6 +82,8 @@ func getAllApps(db *sql.DB){
 	if err != nil {
 		panic(err)
 	}
+
+	return apps
 }
 
 func getStringValue(s *string) string {
@@ -77,6 +97,8 @@ func getStringValue(s *string) string {
 func main(){
 	db := InitDB()
 	defer db.Close()
-	getAllApps(db)
+	amount := 10
+	days := 100
+	GetTopApps(db, amount, days)
 }
 
