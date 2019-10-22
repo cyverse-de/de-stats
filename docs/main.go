@@ -28,3 +28,7 @@ type rootResponseWrapper struct {
 	// in:body
 	Body api.RootResponse
 }
+
+type appsResponseWrapper struct {
+	Body api.AppsResponse
+}
