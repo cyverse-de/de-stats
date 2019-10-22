@@ -1,10 +1,10 @@
 package cron
+
 import (
 	//"bufio"
 	//"bytes"
 	"database/sql"
 	"fmt"
-
 	//"io"
 	//"os"
 	//"path/filepath"
@@ -21,30 +21,7 @@ type App struct {
 
 }
 
-const (
-	host	= "trotter.cyverse.org"
-	port   	= 6432
-	user   	= "de"
-	dbname 	= "de"
-	folder  = "/tmp"
-	logfile = "logs-stdout-output"
-)
-func InitDB() *sql.DB{
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"dbname=%s sslmode=disable", host, port, user, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
 
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	return db
-}
 
 func GetTopApps(db *sql.DB, amount int, days int) []App{
 	var name *string
@@ -52,12 +29,12 @@ func GetTopApps(db *sql.DB, amount int, days int) []App{
 	var appCount int
 
 	query := `SELECT app_name, app_id, count(*) AS job_count FROM jobs
-           WHERE start_date >= (now() - interval '1 days')
+           WHERE start_date >= (now() - ($2 || ' DAY')::INTERVAL )
            AND app_id != '1e8f719b-0452-4d39-a2f3-8714793ee3e6'
            GROUP BY app_name, app_id
            ORDER BY job_count DESC
            LIMIT $1`
-	rows, err := db.Query(query, amount)
+	rows, err := db.Query(query, amount, days)
 
 	if err != nil {
 		panic(err)
@@ -94,11 +71,5 @@ func getStringValue(s *string) string {
 }
 
 
-func main(){
-	db := InitDB()
-	defer db.Close()
-	amount := 10
-	days := 100
-	GetTopApps(db, amount, days)
-}
+
 
