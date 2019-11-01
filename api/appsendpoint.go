@@ -1,9 +1,11 @@
 package api
 
 import (
+	"fmt"
 	"github.com/cyverse-de/de-stats/cron"
 	"github.com/labstack/echo"
 	"net/http"
+	"github.com/cyverse-de/de-stats/util"
 )
 
 type AppsParams struct {
@@ -32,9 +34,19 @@ type AppsResponse struct {
 }
 
 func AppsHandler(ctx echo.Context) error{
+
+	days, err := util.IntQueryParam(ctx, "days", 1, 0, 365)
+	fmt.Println(days)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+	}
 	db := cron.InitDB()
-	amount := 10
-	days := 100
+
+	amount, err := util.IntQueryParam(ctx, "count", 10, 1, 1000)
+	fmt.Println(amount)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+	}
 
 	apps, err := cron.GetTopApps(db, amount, days)
 
