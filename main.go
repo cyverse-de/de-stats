@@ -13,9 +13,6 @@ import (
 func main() {
 	db := cron.InitDB()
 	defer db.Close()
-	amount := 10
-	days := 100
-	cron.GetTopApps(db, amount, days)
 	e := echo.New()
 
 	e.Use(middleware.Logger())
