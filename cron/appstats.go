@@ -1,4 +1,5 @@
-package main
+package cron
+
 import (
 	//"bufio"
 	//"bytes"
@@ -13,34 +14,60 @@ import (
 
 	_ "github.com/lib/pq"
 )
-
-const (
-	host	= "trotter.cyverse.org"
-	port   	= 6432
-	user   	= "de"
-	dbname 	= "de"
-	folder  = "/tmp"
-	logfile = "logs-stdout-output"
-)
-func main(){
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"dbname=%s sslmode=disable", host, port, user, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
-
-	if err != nil {
-		panic(err)
-	}
-
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-
+type App struct {
+	Name	string
+	ID		string
+	Count	int
 }
 
-func getAllApps(db *sql.DB){
-	query := "SELECT * FROM APPS"
+
+
+func GetTopApps(db *sql.DB, amount int, days int) ([]App, error){
+	var name *string
+	var appID string
+	var appCount int
+
+	query := `SELECT app_name, app_id, count(*) AS job_count FROM jobs
+           WHERE start_date >= (now() - ($2 || ' DAY')::INTERVAL )
+           AND app_id != '1e8f719b-0452-4d39-a2f3-8714793ee3e6'
+           GROUP BY app_name, app_id
+           ORDER BY job_count DESC
+           LIMIT $1`
+	rows, err := db.Query(query, amount, days)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	apps := make([]App, amount)
+	for i := 0; rows.Next(); i++{
+		err := rows.Scan(&name, &appID, &appCount)
+		if err != nil {
+			return nil, err
+		}
+
+		apps[i] = App{getStringValue(name), appID, appCount}
+		output := fmt.Sprintf("App name %[1]v App ID %[2]v App Count %[3]v", getStringValue(name), appID, appCount)
+		fmt.Println(output)
+
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return apps, nil
 }
+
+func getStringValue(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
+}
+
+
+
+
