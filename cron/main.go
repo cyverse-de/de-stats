@@ -31,12 +31,3 @@ func InitDB() *sql.DB{
 
 	return db
 }
-
-
-func main(){
-	db := InitDB()
-	defer db.Close()
-	amount := 10
-	days := 100
-	GetTopApps(db, amount, days)
-}
