@@ -22,7 +22,7 @@ type App struct {
 
 
 
-func GetTopApps(db *sql.DB, amount int, days int) []App{
+func GetTopApps(db *sql.DB, amount int, days int) ([]App, error){
 	var name *string
 	var appID string
 	var appCount int
@@ -36,7 +36,7 @@ func GetTopApps(db *sql.DB, amount int, days int) []App{
 	rows, err := db.Query(query, amount, days)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -45,8 +45,7 @@ func GetTopApps(db *sql.DB, amount int, days int) []App{
 	for i := 0; rows.Next(); i++{
 		err := rows.Scan(&name, &appID, &appCount)
 		if err != nil {
-			panic(err)
-			break
+			return nil, err
 		}
 
 		apps[i] = App{getStringValue(name), appID, appCount}
@@ -56,10 +55,10 @@ func GetTopApps(db *sql.DB, amount int, days int) []App{
 	}
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return apps
+	return apps, nil
 }
 
 func getStringValue(s *string) string {
