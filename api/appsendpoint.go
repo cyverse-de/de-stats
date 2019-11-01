@@ -51,7 +51,7 @@ func AppsHandler(ctx echo.Context) error{
 	apps, err := cron.GetTopApps(db, amount, days)
 
 	if err != nil{
-		panic(err)
+		return err
 	}
 
 	resp := AppsResponse{
