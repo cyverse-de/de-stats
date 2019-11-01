@@ -36,3 +36,15 @@ type errorResponseWrapper struct {
 	// in:body
 	Body api.ErrorResponse
 }
+
+// swagger:route GET /apps getTopApps
+// Returns the top apps in the given time period.
+// Responses:
+// 200: appsResponse
+
+//Top apps in time period.
+//swagger:response appsResponse
+type appsResponseWrapper struct {
+	// in:body
+	Body api.AppsResponse
+}
