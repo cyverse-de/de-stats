@@ -48,13 +48,13 @@ func UsersHandler(ctx echo.Context) error{
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
 
-	users, err := cron.getTopUsers(db, amount, days)
+	users, err := cron.GetTopUsers(db, amount, days)
 
 	if err != nil{
 		return err
 	}
 
-	resp := AppsResponse{
+	resp := UsersResponse{
 		Count: amount,
 		Users:  users,
 	}

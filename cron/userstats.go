@@ -10,7 +10,7 @@ type User struct {
 	Count int
 }
 
-func getTopUsers(db *sql.DB, amount int, days int) ([]User, error){
+func GetTopUsers(db *sql.DB, amount int, days int) ([]User, error){
 	var username *string
 	var count int
 
