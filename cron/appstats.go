@@ -61,12 +61,6 @@ func GetTopApps(db *sql.DB, amount int, days int) ([]App, error){
 	return apps, nil
 }
 
-func getStringValue(s *string) string {
-	if s != nil {
-		return *s
-	}
-	return ""
-}
 
 
 

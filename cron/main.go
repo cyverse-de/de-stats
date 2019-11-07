@@ -31,3 +31,10 @@ func InitDB() *sql.DB{
 
 	return db
 }
+
+func getStringValue(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
+}
