@@ -29,3 +29,14 @@ func IntQueryParam(ctx echo.Context, name string, defaultValue, minValue, maxVal
 
 	return value, nil
 }
+
+func StringQueryParam(ctx echo.Context, name string, defaultValue string) (string, error) {
+
+	// Get the query parameter value.
+	valueStr := ctx.QueryParam(name)
+	if valueStr == "" {
+		return defaultValue, nil
+	}
+
+	return valueStr, nil
+}
