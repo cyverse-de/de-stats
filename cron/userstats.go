@@ -10,18 +10,18 @@ type User struct {
 	Count int
 }
 
-func GetTopUsers(db *sql.DB, amount int, days int) ([]User, error){
+func GetTopUsers(db *sql.DB, amount int, startDate string, endDate string) ([]User, error){
 	var username *string
 	var count int
 
 	query := `SELECT regexp_replace(u.username, '@.*', '') AS username, count(*) AS count  FROM jobs j
            JOIN users u ON j.user_id = u.id
-           WHERE j.start_date >= (now() - interval '1 day')
+           WHERE j.start_date >= ($2 :: DATE) AND j.start_date <= ($3 :: DATE)
            GROUP BY u.username
            ORDER BY count DESC
-		   LIMIT ;`
+		   LIMIT $1;`
 
-	rows, err := db.Query(query, amount, days)
+	rows, err := db.Query(query, amount, startDate, endDate)
 
 	if err != nil {
 		return nil, err

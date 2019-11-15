@@ -1,17 +1,8 @@
 package cron
 
 import (
-	//"bufio"
-	//"bytes"
 	"database/sql"
 	"fmt"
-	//"io"
-	//"os"
-	//"path/filepath"
-	//"strings"
-	//"text/tabwriter"
-	//"time"
-
 	_ "github.com/lib/pq"
 )
 type App struct {
@@ -22,18 +13,19 @@ type App struct {
 
 
 
-func GetTopApps(db *sql.DB, amount int, days int) ([]App, error){
+func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App, error){
 	var name *string
 	var appID string
 	var appCount int
 
 	query := `SELECT app_name, app_id, count(*) AS job_count FROM jobs
-           WHERE start_date >= (now() - ($2 || ' DAY')::INTERVAL )
+           WHERE start_date >= ($2 :: DATE)
+           AND start_date <= ($3 :: DATE)
            AND app_id != '1e8f719b-0452-4d39-a2f3-8714793ee3e6'
            GROUP BY app_name, app_id
            ORDER BY job_count DESC
            LIMIT $1`
-	rows, err := db.Query(query, amount, days)
+	rows, err := db.Query(query, amount, startDate, endDate)
 
 	if err != nil {
 		return nil, err
