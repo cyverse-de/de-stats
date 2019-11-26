@@ -12,7 +12,7 @@ type Job struct {
 }
 
 //jobs/submitted
-func getSubmittedJobCounts(db *sql.DB, startDay string, endDay string)([]Job, error) {
+func GetSubmittedJobCounts(db *sql.DB, startDay string, endDay string)([]Job, error) {
 	var jobType *string
 	var count int
 	//skip curl wrapper jobs

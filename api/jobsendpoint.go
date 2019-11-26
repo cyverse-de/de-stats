@@ -51,7 +51,7 @@ func JobsSubmittedHandler(ctx echo.Context) error {
 	}
 
 	db := cron.InitDB()
-	jobs, err = cron.getSubmittedJobCounts(db, startDate, endDate)
+	jobs, err := cron.GetSubmittedJobCounts(db, startDate, endDate)
 	
 	if err != nil {
 		return err
