@@ -10,14 +10,19 @@ import (
 )
 
 type AppsParams struct {
-	//The number of days to include in the response
+	//The beginning of the time period of the response
 	//
 	//in: query
 	//required: false
-	//minimum: 0
-	//maximum: 365
-	//default: 7
-	Days int
+	//default: one week ago
+	StartDate string
+
+	//The end of the time period of the response
+	//
+	//in: query
+	//required: false
+	//default: today
+	EndDate string
 
 	//The number of apps to include in the response
 	//
@@ -35,21 +40,27 @@ type AppsResponse struct {
 }
 
 func AppsHandler(ctx echo.Context) error{
+	const (
+		dateFormat = "20060102"
+	)
 
 	currentTime := time.Now()
 	oneWeekAgo := time.Now().AddDate(0, 0, -7)
 
-	startDate, err := util.StringQueryParam(ctx, "startDate", oneWeekAgo.Format("00/00/0000"))
+	startDate, err := util.StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
 	fmt.Println(startDate)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
 
-	endDate, err := util.StringQueryParam(ctx, "endDate", currentTime.Format("00/00/0000"))
+	endDate, err := util.StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
 	fmt.Println(endDate)
 	if err != nil{
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
+	eDate, err := time.Parse(dateFormat, endDate)
+	eDate.AddDate(0, 0, 1)
+	endDate = eDate.Format(dateFormat)
 
 
 	amount, err := util.IntQueryParam(ctx, "count", 10, 1, 1000)
@@ -66,7 +77,7 @@ func AppsHandler(ctx echo.Context) error{
 	}
 
 	resp := AppsResponse{
-		Count: amount,
+		Count: len(apps),
 		Apps:  apps,
 	}
 	return ctx.JSON(http.StatusOK, resp)
