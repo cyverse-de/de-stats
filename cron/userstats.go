@@ -29,15 +29,15 @@ func GetTopUsers(db *sql.DB, amount int, startDate string, endDate string) ([]Us
 
 	defer rows.Close()
 
-	users := make([]User, amount)
+	var users []User
 
 	for i := 0; rows.Next(); i++{
 		err := rows.Scan(&username, &count)
 		if err != nil {
 			return nil, err
 		}
-		users[i] = User{getStringValue(username), count}
-		output := fmt.Sprintf("Username %[1]v Count %[3]v", getStringValue(username), count)
+		users = append(users, User{getStringValue(username), count})
+		output := fmt.Sprintf("Username %[1]v Count %[2]v", getStringValue(username), count)
 		fmt.Println(output)
 
 	}

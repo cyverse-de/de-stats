@@ -33,14 +33,14 @@ func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App
 
 	defer rows.Close()
 
-	apps := make([]App, amount)
+	var apps []App
 	for i := 0; rows.Next(); i++{
 		err := rows.Scan(&name, &appID, &appCount)
 		if err != nil {
 			return nil, err
 		}
 
-		apps[i] = App{getStringValue(name), appID, appCount}
+		apps = append(apps, App{getStringValue(name), appID, appCount})
 		output := fmt.Sprintf("App name %[1]v App ID %[2]v App Count %[3]v", getStringValue(name), appID, appCount)
 		fmt.Println(output)
 
