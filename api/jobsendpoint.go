@@ -30,9 +30,9 @@ type JobsResponse struct {
 	Jobs []cron.Job `json:"jobs"`
 }
 
-func JobsSubmittedHandler(ctx echo.Context) error {
+func verifyJobsParameters(ctx echo.Context) (string, string, error) {
 	const (
-		dateFormat = "2006-01-02"
+		dateFormat = "20060102"
 	)
 
 	currentTime := time.Now()
@@ -41,12 +41,22 @@ func JobsSubmittedHandler(ctx echo.Context) error {
 	startDate, err := util.StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
 	fmt.Println(startDate)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
 
 	endDate, err := util.StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
 	fmt.Println(endDate)
 	if err != nil{
+		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+	}
+
+	return startDate, endDate, nil
+}
+
+func JobsSubmittedHandler(ctx echo.Context) error {
+
+	startDate, endDate, err := verifyJobsParameters(ctx)
+	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
 
@@ -65,4 +75,26 @@ func JobsSubmittedHandler(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, resp)
 
+}
+
+func JobsStatusHandler(ctx echo.Context) error {
+	startDate, endDate, err := verifyJobsParameters(ctx)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+	}
+
+	db := cron.InitDB()
+	jobs, err := cron.GetJobStatusCounts(db, startDate, endDate)
+
+	if err != nil {
+		return err
+	}
+
+	count := len(jobs)
+	resp := JobsResponse{
+		Count: count,
+		Jobs:  jobs,
+	}
+
+	return ctx.JSON(http.StatusOK, resp)
 }
