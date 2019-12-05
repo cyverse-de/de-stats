@@ -25,6 +25,8 @@ func main() {
 	e.GET("/users", api.UsersHandler)
 	e.GET("/jobs/submitted", api.JobsSubmittedHandler)
 	e.GET("/jobs/status", api.JobsStatusHandler)
+	e.GET("/logins", api.LoginCountHandler)
+	e.GET("/logins/distinct", api.DistinceLoginCountHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
