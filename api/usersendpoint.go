@@ -10,14 +10,19 @@ import (
 )
 
 type UsersParams struct {
-	//The number of days to include in the response
+	//The beginning of the time period of the response
 	//
 	//in: query
 	//required: false
-	//minimum: 0
-	//maximum: 365
-	//default: 7
-	Days int
+	//default: one week ago
+	StartDate string
+
+	//The end of the time period of the response
+	//
+	//in: query
+	//required: false
+	//default: today
+	EndDate string
 
 	//The number of users to include in the response
 	//
@@ -35,21 +40,28 @@ type UsersResponse struct {
 }
 
 func UsersHandler(ctx echo.Context) error{
-
+	const (
+		dateFormat = "20060102"
+	)
 	currentTime := time.Now()
 	oneWeekAgo := time.Now().AddDate(0, 0, -7)
 
-	startDate, err := util.StringQueryParam(ctx, "startDate", oneWeekAgo.Format("00/00/0000"))
+	startDate, err := util.StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
 	fmt.Println(startDate)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
 
-	endDate, err := util.StringQueryParam(ctx, "endDate", currentTime.Format("00/00/0000"))
-	fmt.Println(endDate)
+	endDate, err := util.StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
 	if err != nil{
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
+	eDate, err := time.Parse(dateFormat, endDate)
+	if err != nil {
+		return err
+	}
+	endDate = eDate.AddDate(0, 0, 1).Format(dateFormat)
+	fmt.Println(endDate)
 
 	amount, err := util.IntQueryParam(ctx, "count", 10, 1, 1000)
 	fmt.Println(amount)
@@ -65,7 +77,7 @@ func UsersHandler(ctx echo.Context) error{
 	}
 
 	resp := UsersResponse{
-		Count: amount,
+		Count: len(users),
 		Users:  users,
 	}
 	return ctx.JSON(http.StatusOK, resp)
