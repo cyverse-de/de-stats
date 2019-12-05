@@ -77,7 +77,7 @@ type jobsSubmittedResponseWrapper struct {
 }
 
 // swagger:route GET /jobs/status GetJobStatusCounts
-// Returns the number of job count in the given time period for each job type (DE, OSG, etc.), and what their status
+// Returns the job count in the given time period for each job type (DE, OSG, etc.), and what their status
 // was (passed, failed, cancelled).
 // Responses:
 // 200: usersResponse
