@@ -16,7 +16,7 @@ func GetTopUsers(db *sql.DB, amount int, startDate string, endDate string) ([]Us
 
 	query := `SELECT regexp_replace(u.username, '@.*', '') AS username, count(*) AS count  FROM jobs j
            JOIN users u ON j.user_id = u.id
-           WHERE j.start_date >= ($2 :: DATE) AND j.start_date <= ($3 :: DATE)
+           WHERE j.start_date >= ($2 :: DATE) AND j.start_date <= ($3 :: DATE) + INTERVAL '1 day'
            GROUP BY u.username
            ORDER BY count DESC
 		   LIMIT $1;`

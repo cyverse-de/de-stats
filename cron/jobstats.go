@@ -12,7 +12,7 @@ type Job struct {
 }
 
 //jobs/submitted
-func GetSubmittedJobCounts(db *sql.DB, startDay string, endDay string)([]Job, error) {
+func GetSubmittedJobCounts(db *sql.DB, startDate string, endDate string)([]Job, error) {
 	var jobType *string
 	var count int
 	//skip curl wrapper jobs
@@ -26,7 +26,7 @@ func GetSubmittedJobCounts(db *sql.DB, startDay string, endDay string)([]Job, er
                SELECT j.id, array_agg(DISTINCT t.name) AS types FROM jobs j
                JOIN job_steps s ON j.id = s.job_id
                JOIN job_types t ON s.job_type_id = t.id
-               WHERE j.start_date >= ($1 :: DATE) AND j.start_date <= ($2 :: DATE)
+               WHERE j.start_date >= ($1 :: DATE) AND j.start_date <= ($2 :: DATE) + INTERVAL '1 day'
                AND j.app_id != '1e8f719b-0452-4d39-a2f3-8714793ee3e6'
                GROUP BY j.id
            ) AS a
@@ -34,7 +34,7 @@ func GetSubmittedJobCounts(db *sql.DB, startDay string, endDay string)([]Job, er
          GROUP BY b.job_type
          ORDER BY b.job_type;`
 
-	rows, err := db.Query(query, startDay, endDay)
+	rows, err := db.Query(query, startDate, endDate)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func GetSubmittedJobCounts(db *sql.DB, startDay string, endDay string)([]Job, er
 }
 
 //jobs/status
-func GetJobStatusCounts(db *sql.DB, startDay string, endDay string)([]Job, error){
+func GetJobStatusCounts(db *sql.DB, startDate string, endDate string)([]Job, error){
 	var jobType *string
 	var count int
 	var status *string
@@ -78,7 +78,7 @@ func GetJobStatusCounts(db *sql.DB, startDay string, endDay string)([]Job, error
                SELECT j.id, j.status, array_agg(DISTINCT t.name) AS types FROM jobs j
                JOIN job_steps s ON j.id = s.job_id
                JOIN job_types t ON s.job_type_id = t.id
-               WHERE j.start_date >= ($1 :: DATE) AND j.start_date <= ($2 :: DATE)
+               WHERE j.start_date >= ($1 :: DATE) AND j.start_date <= ($2 :: DATE) + INTERVAL '1 day'
                AND j.app_id != '1e8f719b-0452-4d39-a2f3-8714793ee3e6'
                AND j.status in ('Completed', 'Failed', 'Canceled')
                GROUP BY j.id
@@ -87,7 +87,7 @@ func GetJobStatusCounts(db *sql.DB, startDay string, endDay string)([]Job, error
          GROUP BY b.job_type, b.status
          ORDER BY b.job_type;`
 
-	rows, err := db.Query(query, startDay, endDay)
+	rows, err := db.Query(query, startDate, endDate)
 	if err != nil {
 		return nil, err;
 	}

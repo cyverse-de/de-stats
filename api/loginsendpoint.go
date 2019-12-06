@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/cyverse-de/de-stats/cron"
 	"github.com/cyverse-de/de-stats/util"
 	"github.com/labstack/echo"
@@ -38,13 +37,11 @@ func verifyLoginParameters(ctx echo.Context) (string, string, error) {
 	oneWeekAgo := time.Now().AddDate(0, 0, -7)
 
 	startDate, err := util.StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
-	fmt.Println(startDate)
 	if err != nil {
 		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
 
 	endDate, err := util.StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
-	fmt.Println(endDate)
 	if err != nil{
 		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}

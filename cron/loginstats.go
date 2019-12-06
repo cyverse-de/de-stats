@@ -11,7 +11,7 @@ func GetDistinctLoginCount(db *sql.DB, startDate string, endDate string) (Login,
 	var count int
 
 	query := `SELECT count(distinct user_id) FROM logins WHERE login_time >= ($1 :: DATE )
-		AND login_time <= ($2 :: DATE);`
+		AND login_time <= ($2 :: DATE) + INTERVAL '1 day';`
 
 	rows, err := db.Query(query, startDate, endDate)
 
@@ -43,7 +43,7 @@ func GetLoginCount(db *sql.DB, startDate string, endDate string) (Login, error){
 	var count int
 
 	query := `select count(user_id) from logins where login_time >= ($1 :: DATE) 
-		AND login_time <= ($2 :: DATE);`
+		AND login_time <= ($2 :: DATE) + INTERVAL  '1 day';`
 
 	rows, err := db.Query(query, startDate, endDate)
 	if err != nil {
