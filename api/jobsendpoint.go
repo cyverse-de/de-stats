@@ -27,7 +27,7 @@ type JobsParams struct {
 
 type JobsResponse struct {
 	Count int	 	`json:"count"`
-	Jobs []cron.Job `json:"jobs"`
+	Jobs []cron.JobStats `json:"jobs"`
 }
 
 func verifyJobsParameters(ctx echo.Context) (string, string, error) {

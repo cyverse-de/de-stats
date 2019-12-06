@@ -11,8 +11,6 @@ type User struct {
 }
 
 func GetTopUsers(db *sql.DB, amount int, startDate string, endDate string) ([]User, error){
-	var username *string
-	var count int
 
 	query := `SELECT regexp_replace(u.username, '@.*', '') AS username, count(*) AS count  FROM jobs j
            JOIN users u ON j.user_id = u.id
@@ -31,13 +29,14 @@ func GetTopUsers(db *sql.DB, amount int, startDate string, endDate string) ([]Us
 
 	var users []User
 
-	for i := 0; rows.Next(); i++{
-		err := rows.Scan(&username, &count)
+	for rows.Next(){
+		var user User
+		err := rows.Scan(&user.Name, &user.Name)
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, User{getStringValue(username), count})
-		output := fmt.Sprintf("Username %[1]v Count %[2]v", getStringValue(username), count)
+		users = append(users, user)
+		output := fmt.Sprintf("Username %[1]v Count %[2]v", user.Name, user.Count)
 		fmt.Println(output)
 
 	}

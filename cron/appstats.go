@@ -11,13 +11,7 @@ type App struct {
 	Count	int
 }
 
-
-
 func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App, error){
-	var name *string
-	var appID string
-	var appCount int
-
 	query := `SELECT app_name, app_id, count(*) AS job_count FROM jobs
            WHERE start_date >= ($2 :: DATE)
            AND start_date <= ($3 :: DATE) + INTERVAL '1 day'
@@ -34,14 +28,15 @@ func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App
 	defer rows.Close()
 
 	var apps []App
-	for i := 0; rows.Next(); i++{
-		err := rows.Scan(&name, &appID, &appCount)
+	for rows.Next(){
+		var app App
+		err := rows.Scan(&app.Name, &app.ID, &app.Count)
 		if err != nil {
 			return nil, err
 		}
 
-		apps = append(apps, App{getStringValue(name), appID, appCount})
-		output := fmt.Sprintf("App name %[1]v App ID %[2]v App Count %[3]v", getStringValue(name), appID, appCount)
+		apps = append(apps, app)
+		output := fmt.Sprintf("App name %[1]v App ID %[2]v App Count %[3]v", app.Name, app.ID, app.Count)
 		fmt.Println(output)
 
 	}

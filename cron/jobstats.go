@@ -5,16 +5,14 @@ import (
 	"fmt"
 )
 
-type Job struct {
+type JobStats struct {
 	Category	string
 	Status		string
 	Count		int
 }
 
 //jobs/submitted
-func GetSubmittedJobCounts(db *sql.DB, startDate string, endDate string)([]Job, error) {
-	var jobType *string
-	var count int
+func GetSubmittedJobCounts(db *sql.DB, startDate string, endDate string)([]JobStats, error) {
 	//skip curl wrapper jobs
 	query := `SELECT b.job_type, count(b.*) AS count
             FROM (
@@ -41,15 +39,16 @@ func GetSubmittedJobCounts(db *sql.DB, startDate string, endDate string)([]Job, 
 
 	defer rows.Close()
 
-	var jobs []Job
+	var jobs []JobStats
 
 	for i := 0; rows.Next(); i++ {
-		err := rows.Scan(&jobType, &count)
+		var job JobStats
+		err := rows.Scan(&job.Category, &job.Status, &job.Count)
 		if err != nil {
 			return nil, err
 		}
-		jobs = append(jobs, Job{getStringValue(jobType), "Submitted", count})
-		output := fmt.Sprintf("Total no.of %[1]v jobs Submitted in last 24 hours: %[2]v", getStringValue(jobType), count)
+		jobs = append(jobs, job)
+		output := fmt.Sprintf("Total no.of %[1]v jobs Submitted in last 24 hours: %[2]v", job.Category, job.Count)
 		fmt.Println(output)
 
 	}
@@ -63,10 +62,7 @@ func GetSubmittedJobCounts(db *sql.DB, startDate string, endDate string)([]Job, 
 }
 
 //jobs/status
-func GetJobStatusCounts(db *sql.DB, startDate string, endDate string)([]Job, error){
-	var jobType *string
-	var count int
-	var status *string
+func GetJobStatusCounts(db *sql.DB, startDate string, endDate string)([]JobStats, error){
 
 	query := `SELECT b.job_type, b.status, count(b.*) AS count
             FROM (
@@ -94,15 +90,16 @@ func GetJobStatusCounts(db *sql.DB, startDate string, endDate string)([]Job, err
 
 	defer rows.Close()
 
-	var jobs []Job
+	var jobs []JobStats
 
-	for i := 0; rows.Next(); i++ {
-		err := rows.Scan(&jobType, &status, &count)
+	for rows.Next() {
+		var job JobStats
+		err := rows.Scan(&job.Category, &job.Status, &job.Count)
 		if err != nil {
 			return nil, err;
 		}
-		jobs = append(jobs, Job{getStringValue(jobType), getStringValue(status), count})
-		output := fmt.Sprintf("Total no.of %[1]v jobs %[2]v: %[3]v", getStringValue(jobType), getStringValue(status), count)
+		jobs = append(jobs, job)
+		output := fmt.Sprintf("Total no.of %[1]v jobs %[2]v: %[3]v", job.Category, job.Status, job.Count)
 		fmt.Println(output)
 	}
 
