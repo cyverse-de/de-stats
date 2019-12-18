@@ -14,7 +14,7 @@ type JobStats struct {
 //jobs/submitted
 func GetSubmittedJobCounts(db *sql.DB, startDate string, endDate string)([]JobStats, error) {
 	//skip curl wrapper jobs
-	query := `SELECT b.job_type, count(b.*) AS count
+	query := `SELECT b.job_type, 'Submitted', count(b.*) AS count
             FROM (
               SELECT a.id,
                 CASE WHEN array_length(a.types, 1) = 1 THEN a.types[1]

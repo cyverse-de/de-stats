@@ -2,69 +2,49 @@ package cron
 
 import "database/sql"
 
-type Login struct {
+type LoginCount struct {
 	Count int
 }
 
 // /logins/distinct
-func GetDistinctLoginCount(db *sql.DB, startDate string, endDate string) (Login, error){
+func GetDistinctLoginCount(db *sql.DB, startDate string, endDate string) (LoginCount, error){
 	var count int
 
 	query := `SELECT count(distinct user_id) FROM logins WHERE login_time >= ($1 :: DATE )
 		AND login_time <= ($2 :: DATE) + INTERVAL '1 day';`
 
-	rows, err := db.Query(query, startDate, endDate)
+	row := db.QueryRow(query, startDate, endDate)
+
+	var logins LoginCount
+	logins = LoginCount{0}
+	err := row.Scan(&count)
 
 	if err != nil {
-		return Login{-1}, err
+		return LoginCount{-1}, err
 	}
-
-	defer rows.Close()
-	var logins Login
-	logins = Login{0}
-	for rows.Next() {
-		err := rows.Scan(&count)
-		if err != nil {
-			return Login{-1}, err
-		}
-		logins.Count += count
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return Login{-1}, err
-	}
+	logins.Count = count
 
 	return logins, nil
 }
 
 // /login
-func GetLoginCount(db *sql.DB, startDate string, endDate string) (Login, error){
+func GetLoginCount(db *sql.DB, startDate string, endDate string) (LoginCount, error){
 	var count int
 
 	query := `select count(user_id) from logins where login_time >= ($1 :: DATE) 
 		AND login_time <= ($2 :: DATE) + INTERVAL  '1 day';`
 
-	rows, err := db.Query(query, startDate, endDate)
-	if err != nil {
-		return Login{-1}, err
-	}
+	row := db.QueryRow(query, startDate, endDate)
 
-	defer rows.Close()
-	var logins Login
-	logins = Login{0}
-	for rows.Next(){
-		err := rows.Scan(&count)
-		if err != nil {
-			return Login{-1}, err
-		}
-		logins.Count += count
-	}
+	var logins LoginCount
+	logins = LoginCount{0}
+	err := row.Scan(&count)
 
-	err = rows.Err()
 	if err != nil {
-		return Login{-1}, err
+		return LoginCount{-1}, err
 	}
+	logins.Count = count
+
 
 	return logins, nil
 }

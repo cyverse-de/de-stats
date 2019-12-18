@@ -49,7 +49,7 @@ func verifyLoginParameters(ctx echo.Context) (string, string, error) {
 	return startDate, endDate, nil
 }
 
-func DistinceLoginCountHandler(ctx echo.Context) error {
+func DistinctLoginCountHandler(ctx echo.Context) error {
 
 	startDate, endDate, err := verifyLoginParameters(ctx)
 	if err != nil {
