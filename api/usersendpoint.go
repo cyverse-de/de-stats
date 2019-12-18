@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"github.com/cyverse-de/de-stats/cron"
 	"github.com/cyverse-de/de-stats/util"
 	"github.com/labstack/echo"
@@ -37,28 +38,28 @@ type UsersResponse struct {
 	Users	[]cron.User	`json:"users"`
 }
 
-func UsersHandler(ctx echo.Context) error{
-	startDate, endDate, err := util.VerifyDateParameters(ctx)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+func BuildUsersHandler(db *sql.DB) func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		startDate, endDate, err := util.VerifyDateParameters(ctx)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		}
+
+		amount, err := util.IntQueryParam(ctx, "count", 10, 1, 1000)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		}
+
+		users, err := cron.GetTopUsers(db, amount, startDate, endDate)
+
+		if err != nil{
+			return err
+		}
+
+		resp := UsersResponse{
+			Count: len(users),
+			Users:  users,
+		}
+		return ctx.JSON(http.StatusOK, resp)
 	}
-
-	amount, err := util.IntQueryParam(ctx, "count", 10, 1, 1000)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
-	}
-
-	db := cron.InitDB()
-	users, err := cron.GetTopUsers(db, amount, startDate, endDate)
-
-	if err != nil{
-		return err
-	}
-
-	resp := UsersResponse{
-		Count: len(users),
-		Users:  users,
-	}
-	return ctx.JSON(http.StatusOK, resp)
-
 }

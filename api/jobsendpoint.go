@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"github.com/cyverse-de/de-stats/cron"
 	"github.com/cyverse-de/de-stats/util"
 	"github.com/labstack/echo"
@@ -27,49 +28,48 @@ type JobsResponse struct {
 	Count int	 	`json:"count"`
 	Jobs []cron.JobStats `json:"jobs"`
 }
+func BuildJobsSubmittedHandler(db *sql.DB) func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		startDate, endDate, err := util.VerifyDateParameters(ctx)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		}
 
-func JobsSubmittedHandler(ctx echo.Context) error {
+		jobs, err := cron.GetSubmittedJobCounts(db, startDate, endDate)
 
-	startDate, endDate, err := util.VerifyDateParameters(ctx)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		if err != nil {
+			return err
+		}
+
+		count := len(jobs)
+		resp := JobsResponse{
+			Count: count,
+			Jobs:  jobs,
+		}
+
+		return ctx.JSON(http.StatusOK, resp)
 	}
-
-	db := cron.InitDB()
-	jobs, err := cron.GetSubmittedJobCounts(db, startDate, endDate)
-	
-	if err != nil {
-		return err
-	}
-
-	count := len(jobs)
-	resp := JobsResponse{
-		Count: count,
-		Jobs:  jobs,
-	}
-
-	return ctx.JSON(http.StatusOK, resp)
-
 }
 
-func JobsStatusHandler(ctx echo.Context) error {
-	startDate, endDate, err := util.VerifyDateParameters(ctx)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+func BuildJobsStatusHandler(db *sql.DB) func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		startDate, endDate, err := util.VerifyDateParameters(ctx)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		}
+
+		jobs, err := cron.GetJobStatusCounts(db, startDate, endDate)
+
+		if err != nil {
+			return err
+		}
+
+		count := len(jobs)
+		resp := JobsResponse{
+			Count: count,
+			Jobs:  jobs,
+		}
+
+		return ctx.JSON(http.StatusOK, resp)
 	}
-
-	db := cron.InitDB()
-	jobs, err := cron.GetJobStatusCounts(db, startDate, endDate)
-
-	if err != nil {
-		return err
-	}
-
-	count := len(jobs)
-	resp := JobsResponse{
-		Count: count,
-		Jobs:  jobs,
-	}
-
-	return ctx.JSON(http.StatusOK, resp)
 }

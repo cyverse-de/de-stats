@@ -1,6 +1,8 @@
 package cron
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type LoginCount struct {
 	Count int

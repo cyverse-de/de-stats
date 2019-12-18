@@ -13,6 +13,10 @@ type ErrorResponse struct {
 	Description string `json:"description"`
 }
 
+const (
+	dateFormat = "20060102"
+)
+
 // IntQueryParam extracts the value of an integer query parameter and performs range checking.
 func IntQueryParam(ctx echo.Context, name string, defaultValue, minValue, maxValue int) (int, error) {
 
@@ -48,10 +52,6 @@ func StringQueryParam(ctx echo.Context, name string, defaultValue string) (strin
 }
 
 func VerifyDateParameters(ctx echo.Context) (string, string, error) {
-	const (
-		dateFormat = "20060102"
-	)
-
 	currentTime := time.Now()
 	oneWeekAgo := time.Now().AddDate(0, 0, -7)
 

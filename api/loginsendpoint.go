@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"github.com/cyverse-de/de-stats/cron"
 	"github.com/cyverse-de/de-stats/util"
 	"github.com/labstack/echo"
@@ -27,44 +28,44 @@ type LoginsResponse struct {
 	Count int 	`json:"count"`
 }
 
-func DistinctLoginCountHandler(ctx echo.Context) error {
+func BuildDistinctLoginCountHandler(db *sql.DB) func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		startDate, endDate, err := util.VerifyDateParameters(ctx)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		}
 
-	startDate, endDate, err := util.VerifyDateParameters(ctx)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		login, err := cron.GetDistinctLoginCount(db, startDate, endDate)
+
+		if err != nil {
+			return err
+		}
+
+		resp := LoginsResponse{
+			Count: login.Count,
+		}
+
+		return ctx.JSON(http.StatusOK, resp)
 	}
-
-	db := cron.InitDB()
-	login, err := cron.GetDistinctLoginCount(db, startDate, endDate)
-
-	if err != nil {
-		return err
-	}
-
-	resp := LoginsResponse{
-		Count: login.Count,
-	}
-
-	return ctx.JSON(http.StatusOK, resp)
-
 }
 
-func LoginCountHandler(ctx echo.Context) error {
-	startDate, endDate, err := util.VerifyDateParameters(ctx)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+func BuildLoginCountHandler(db *sql.DB) func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		startDate, endDate, err := util.VerifyDateParameters(ctx)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		}
+
+		login, err := cron.GetLoginCount(db, startDate, endDate)
+
+		if err != nil {
+			return err
+		}
+
+		resp := LoginsResponse{
+			Count: login.Count,
+		}
+
+		return ctx.JSON(http.StatusOK, resp)
 	}
-
-	db := cron.InitDB()
-	login, err := cron.GetLoginCount(db, startDate, endDate)
-
-	if err != nil {
-		return err
-	}
-
-	resp := LoginsResponse{
-		Count: login.Count,
-	}
-
-	return ctx.JSON(http.StatusOK, resp)
 }

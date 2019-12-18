@@ -2,12 +2,11 @@ package main
 
 import (
 	"github.com/cyverse-de/de-stats/api"
-	"github.com/cyverse-de/echo-middleware/redoc"
 	"github.com/cyverse-de/de-stats/cron"
+	_ "github.com/cyverse-de/de-stats/docs"
+	"github.com/cyverse-de/echo-middleware/redoc"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-
-	_ "github.com/cyverse-de/de-stats/docs"
 )
 
 func main() {
@@ -21,12 +20,12 @@ func main() {
 
 	e.GET("/", api.RootHandler)
 
-	e.GET("/apps", api.AppsHandler)
-	e.GET("/users", api.UsersHandler)
-	e.GET("/jobs/submitted", api.JobsSubmittedHandler)
-	e.GET("/jobs/status", api.JobsStatusHandler)
-	e.GET("/logins", api.LoginCountHandler)
-	e.GET("/logins/distinct", api.DistinctLoginCountHandler)
+	e.GET("/apps", api.BuildAppsHandler(db))
+	e.GET("/users", api.BuildUsersHandler(db))
+	e.GET("/jobs/submitted", api.BuildJobsSubmittedHandler(db))
+	e.GET("/jobs/status", api.BuildJobsStatusHandler(db))
+	e.GET("/logins", api.BuildLoginCountHandler(db))
+	e.GET("/logins/distinct", api.BuildDistinctLoginCountHandler(db))
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
