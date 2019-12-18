@@ -2,10 +2,9 @@ package api
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/cyverse-de/de-stats/util"
 	"github.com/labstack/echo"
+	"net/http"
 )
 
 // swagger:parameters misc getRoot
@@ -47,3 +46,4 @@ func RootHandler(ctx echo.Context) error {
 	}
 	return ctx.JSON(http.StatusOK, resp)
 }
+

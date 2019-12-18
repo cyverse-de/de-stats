@@ -2,10 +2,16 @@ package util
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/labstack/echo"
+	"net/http"
+	"strconv"
+	"time"
 )
+
+// ErrorResponse describes an error response for any endpoint.
+type ErrorResponse struct {
+	Description string `json:"description"`
+}
 
 // IntQueryParam extracts the value of an integer query parameter and performs range checking.
 func IntQueryParam(ctx echo.Context, name string, defaultValue, minValue, maxValue int) (int, error) {
@@ -39,4 +45,25 @@ func StringQueryParam(ctx echo.Context, name string, defaultValue string) (strin
 	}
 
 	return valueStr, nil
+}
+
+func VerifyDateParameters(ctx echo.Context) (string, string, error) {
+	const (
+		dateFormat = "20060102"
+	)
+
+	currentTime := time.Now()
+	oneWeekAgo := time.Now().AddDate(0, 0, -7)
+
+	startDate, err := StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
+	if err != nil {
+		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+	}
+
+	endDate, err := StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
+	if err != nil{
+		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+	}
+
+	return startDate, endDate, nil
 }

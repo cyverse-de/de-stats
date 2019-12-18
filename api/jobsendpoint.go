@@ -1,12 +1,10 @@
 package api
 
 import (
-	"fmt"
 	"github.com/cyverse-de/de-stats/cron"
 	"github.com/cyverse-de/de-stats/util"
 	"github.com/labstack/echo"
 	"net/http"
-	"time"
 )
 
 type JobsParams struct {
@@ -30,32 +28,9 @@ type JobsResponse struct {
 	Jobs []cron.JobStats `json:"jobs"`
 }
 
-func verifyJobsParameters(ctx echo.Context) (string, string, error) {
-	const (
-		dateFormat = "20060102"
-	)
-
-	currentTime := time.Now()
-	oneWeekAgo := time.Now().AddDate(0, 0, -7)
-
-	startDate, err := util.StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
-	fmt.Println(startDate)
-	if err != nil {
-		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
-	}
-
-	endDate, err := util.StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
-	fmt.Println(endDate)
-	if err != nil{
-		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
-	}
-
-	return startDate, endDate, nil
-}
-
 func JobsSubmittedHandler(ctx echo.Context) error {
 
-	startDate, endDate, err := verifyJobsParameters(ctx)
+	startDate, endDate, err := util.VerifyDateParameters(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
@@ -78,7 +53,7 @@ func JobsSubmittedHandler(ctx echo.Context) error {
 }
 
 func JobsStatusHandler(ctx echo.Context) error {
-	startDate, endDate, err := verifyJobsParameters(ctx)
+	startDate, endDate, err := util.VerifyDateParameters(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}

@@ -5,7 +5,6 @@ import (
 	"github.com/cyverse-de/de-stats/util"
 	"github.com/labstack/echo"
 	"net/http"
-	"time"
 )
 
 type AppsParams struct {
@@ -39,20 +38,8 @@ type AppsResponse struct {
 }
 
 func AppsHandler(ctx echo.Context) error{
-	const (
-		dateFormat = "20060102"
-	)
-
-	currentTime := time.Now()
-	oneWeekAgo := time.Now().AddDate(0, 0, -7)
-
-	startDate, err := util.StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
+	startDate, endDate, err := util.VerifyDateParameters(ctx)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
-	}
-
-	endDate, err := util.StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
-	if err != nil{
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 	}
 
