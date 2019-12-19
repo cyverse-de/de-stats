@@ -22,8 +22,7 @@ func main() {
 
 	e.GET("/apps", api.BuildAppsHandler(db))
 	e.GET("/users", api.BuildUsersHandler(db))
-	e.GET("/jobs/submitted", api.BuildJobsSubmittedHandler(db))
-	e.GET("/jobs/status", api.BuildJobsStatusHandler(db))
+	e.GET("/jobs/counts", api.BuildJobsHandler(db))
 	e.GET("/logins", api.BuildLoginCountHandler(db))
 	e.GET("/logins/distinct", api.BuildDistinctLoginCountHandler(db))
 

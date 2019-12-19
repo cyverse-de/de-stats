@@ -63,22 +63,9 @@ type usersResponseWrapper struct {
 	Body api.UsersResponse
 }
 
-// swagger:route GET /jobs/submitted GetSubmittedJobCounts
-// Returns the number of submitted jobs in the given time period for each job type (DE, OSG, etc.).
-// Responses:
-// 200: usersResponse
-// 400: errorResponse
-
-//Submitted jobs in a time period
-//swagger:response JobsResponse
-type jobsSubmittedResponseWrapper struct {
-	// in:body
-	Body api.JobsResponse
-}
-
-// swagger:route GET /jobs/status GetJobStatusCounts
+// swagger:route GET /jobs/counts GetJobCounts
 // Returns the job count in the given time period for each job type (DE, OSG, etc.), and what their status
-// was (passed, failed, cancelled).
+// was (passed, failed, cancelled, submitted).
 // Responses:
 // 200: usersResponse
 // 400: errorResponse

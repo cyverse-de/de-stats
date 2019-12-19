@@ -28,37 +28,15 @@ type JobsResponse struct {
 	Count int	 	`json:"count"`
 	Jobs []cron.JobStats `json:"jobs"`
 }
-func BuildJobsSubmittedHandler(db *sql.DB) func(echo.Context) error {
+
+func BuildJobsHandler(db *sql.DB) func(echo.Context) error {
 	return func(ctx echo.Context) error {
 		startDate, endDate, err := util.VerifyDateParameters(ctx)
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 		}
 
-		jobs, err := cron.GetSubmittedJobCounts(db, startDate, endDate)
-
-		if err != nil {
-			return err
-		}
-
-		count := len(jobs)
-		resp := JobsResponse{
-			Count: count,
-			Jobs:  jobs,
-		}
-
-		return ctx.JSON(http.StatusOK, resp)
-	}
-}
-
-func BuildJobsStatusHandler(db *sql.DB) func(echo.Context) error {
-	return func(ctx echo.Context) error {
-		startDate, endDate, err := util.VerifyDateParameters(ctx)
-		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
-		}
-
-		jobs, err := cron.GetJobStatusCounts(db, startDate, endDate)
+		jobs, err := cron.GetJobCounts(db, startDate, endDate)
 
 		if err != nil {
 			return err

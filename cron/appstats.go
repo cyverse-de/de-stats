@@ -15,7 +15,13 @@ func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App
 	query := `SELECT app_name, app_id, count(*) AS job_count FROM jobs
            WHERE start_date >= ($2 :: DATE)
            AND start_date <= ($3 :: DATE) + INTERVAL '1 day'
-           AND app_id != '1e8f719b-0452-4d39-a2f3-8714793ee3e6'
+           AND app_id NOT IN (
+           		SELECT app_steps.app_id::TEXT FROM app_steps
+    			JOIN tasks ON app_steps.task_id = tasks.id
+   				JOIN tools ON tasks.tool_id = tools.id
+    			JOIN tool_types ON tools.tool_type_id = tool_types.id
+    			WHERE tool_types.name = 'internal'
+           )
            GROUP BY app_name, app_id
            ORDER BY job_count DESC
            LIMIT $1`
