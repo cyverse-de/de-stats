@@ -24,7 +24,6 @@ func main() {
 	e.GET("/users", api.BuildUsersHandler(db))
 	e.GET("/jobs/counts", api.BuildJobsHandler(db))
 	e.GET("/logins", api.BuildLoginCountHandler(db))
-	e.GET("/logins/distinct", api.BuildDistinctLoginCountHandler(db))
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

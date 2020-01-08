@@ -26,27 +26,7 @@ type LoginsParams struct {
 
 type LoginsResponse struct {
 	Count int 	`json:"count"`
-}
-
-func BuildDistinctLoginCountHandler(db *sql.DB) func(echo.Context) error {
-	return func(ctx echo.Context) error {
-		startDate, endDate, err := util.VerifyDateParameters(ctx)
-		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
-		}
-
-		login, err := cron.GetDistinctLoginCount(db, startDate, endDate)
-
-		if err != nil {
-			return err
-		}
-
-		resp := LoginsResponse{
-			Count: login.Count,
-		}
-
-		return ctx.JSON(http.StatusOK, resp)
-	}
+	DistinctCount int `json:"distinct"`
 }
 
 func BuildLoginCountHandler(db *sql.DB) func(echo.Context) error {
@@ -64,6 +44,7 @@ func BuildLoginCountHandler(db *sql.DB) func(echo.Context) error {
 
 		resp := LoginsResponse{
 			Count: login.Count,
+			DistinctCount: login.DistinctCount,
 		}
 
 		return ctx.JSON(http.StatusOK, resp)
