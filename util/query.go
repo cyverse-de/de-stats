@@ -3,7 +3,6 @@ package util
 import (
 	"fmt"
 	"github.com/labstack/echo"
-	"net/http"
 	"strconv"
 	"time"
 )
@@ -57,12 +56,12 @@ func VerifyDateParameters(ctx echo.Context) (string, string, error) {
 
 	startDate, err := StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
 	if err != nil {
-		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		return "", "", err
 	}
 
 	endDate, err := StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
 	if err != nil{
-		return "", "", ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
+		return "", "", err
 	}
 
 	return startDate, endDate, nil
