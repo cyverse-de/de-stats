@@ -2,7 +2,6 @@ package cron
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 type JobStats struct {
@@ -79,8 +78,6 @@ func GetJobCounts(db *sql.DB, startDate string, endDate string)([]JobStats, erro
 			return nil, err;
 		}
 		jobs = append(jobs, job)
-		output := fmt.Sprintf("Total no.of %[1]v jobs %[2]v: %[3]v", job.Category, job.Status, job.Count)
-		fmt.Println(output)
 	}
 
 	err = rows.Err()

@@ -2,7 +2,6 @@ package cron
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/lib/pq"
 )
 type App struct {
@@ -42,8 +41,6 @@ func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App
 		}
 
 		apps = append(apps, app)
-		output := fmt.Sprintf("App name %[1]v App ID %[2]v App Count %[3]v", app.Name, app.ID, app.Count)
-		fmt.Println(output)
 
 	}
 	err = rows.Err()

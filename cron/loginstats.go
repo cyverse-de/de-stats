@@ -18,9 +18,7 @@ func GetDistinctLoginCount(db *sql.DB, startDate string, endDate string) (LoginC
 	row := db.QueryRow(query, startDate, endDate)
 
 	var logins LoginCount
-	logins = LoginCount{0}
-	err := row.Scan(&count)
-
+	err := row.Scan(&logins.Count)
 	if err != nil {
 		return LoginCount{-1}, err
 	}
@@ -39,14 +37,11 @@ func GetLoginCount(db *sql.DB, startDate string, endDate string) (LoginCount, er
 	row := db.QueryRow(query, startDate, endDate)
 
 	var logins LoginCount
-	logins = LoginCount{0}
-	err := row.Scan(&count)
-
+	err := row.Scan(&logins.Count)
 	if err != nil {
 		return LoginCount{-1}, err
 	}
 	logins.Count = count
-
 
 	return logins, nil
 }

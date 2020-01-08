@@ -1,7 +1,7 @@
 package cron
+
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/lib/pq"
 )
 
@@ -31,13 +31,11 @@ func GetTopUsers(db *sql.DB, amount int, startDate string, endDate string) ([]Us
 
 	for rows.Next(){
 		var user User
-		err := rows.Scan(&user.Name, &user.Name)
+		err := rows.Scan(&user.Name, &user.Count)
 		if err != nil {
 			return nil, err
 		}
 		users = append(users, user)
-		output := fmt.Sprintf("Username %[1]v Count %[2]v", user.Name, user.Count)
-		fmt.Println(output)
 
 	}
 
