@@ -2,9 +2,18 @@ package util
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/labstack/echo"
+	"strconv"
+	"time"
+)
+
+// ErrorResponse describes an error response for any endpoint.
+type ErrorResponse struct {
+	Description string `json:"description"`
+}
+
+const (
+	dateFormat = "20060102"
 )
 
 // IntQueryParam extracts the value of an integer query parameter and performs range checking.
@@ -28,4 +37,32 @@ func IntQueryParam(ctx echo.Context, name string, defaultValue, minValue, maxVal
 	}
 
 	return value, nil
+}
+
+func StringQueryParam(ctx echo.Context, name string, defaultValue string) (string, error) {
+
+	// Get the query parameter value.
+	valueStr := ctx.QueryParam(name)
+	if valueStr == "" {
+		return defaultValue, nil
+	}
+
+	return valueStr, nil
+}
+
+func VerifyDateParameters(ctx echo.Context) (string, string, error) {
+	currentTime := time.Now()
+	oneWeekAgo := time.Now().AddDate(0, 0, -7)
+
+	startDate, err := StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
+	if err != nil {
+		return "", "", err
+	}
+
+	endDate, err := StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
+	if err != nil{
+		return "", "", err
+	}
+
+	return startDate, endDate, nil
 }

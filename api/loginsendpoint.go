@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-type AppsParams struct {
+type LoginsParams struct {
 	//The beginning of the time period of the response
 	//
 	//in: query
@@ -22,44 +22,31 @@ type AppsParams struct {
 	//required: false
 	//default: today
 	EndDate string
-
-	//The number of apps to include in the response
-	//
-	//in: query
-	//required: false
-	//minimum: 1
-	//maximum: 1000
-	//default: 10
-	Count int
 }
 
-type AppsResponse struct {
-	Count	int `json:"count"`
-	Apps	[]cron.App	`json:"apps"`
+type LoginsResponse struct {
+	Count int 	`json:"count"`
+	DistinctCount int `json:"distinct"`
 }
 
-func BuildAppsHandler(db *sql.DB) func(echo.Context) error {
+func BuildLoginCountHandler(db *sql.DB) func(echo.Context) error {
 	return func(ctx echo.Context) error {
 		startDate, endDate, err := util.VerifyDateParameters(ctx)
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
 		}
 
-		amount, err := util.IntQueryParam(ctx, "count", 10, 1, 1000)
+		login, err := cron.GetLoginCount(db, startDate, endDate)
+
 		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, ErrorResponse{Description: err.Error()})
-		}
-
-		apps, err := cron.GetTopApps(db, amount, startDate, endDate)
-
-		if err != nil{
 			return err
 		}
 
-		resp := AppsResponse{
-			Count: len(apps),
-			Apps:  apps,
+		resp := LoginsResponse{
+			Count: login.Count,
+			DistinctCount: login.DistinctCount,
 		}
+
 		return ctx.JSON(http.StatusOK, resp)
 	}
 }

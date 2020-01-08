@@ -1,17 +1,7 @@
 package cron
 
 import (
-	//"bufio"
-	//"bytes"
 	"database/sql"
-	"fmt"
-	//"io"
-	//"os"
-	//"path/filepath"
-	//"strings"
-	//"text/tabwriter"
-	//"time"
-
 	_ "github.com/lib/pq"
 )
 type App struct {
@@ -20,20 +10,21 @@ type App struct {
 	Count	int
 }
 
-
-
-func GetTopApps(db *sql.DB, amount int, days int) ([]App, error){
-	var name *string
-	var appID string
-	var appCount int
-
+func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App, error){
 	query := `SELECT app_name, app_id, count(*) AS job_count FROM jobs
-           WHERE start_date >= (now() - ($2 || ' DAY')::INTERVAL )
-           AND app_id != '1e8f719b-0452-4d39-a2f3-8714793ee3e6'
+           WHERE start_date >= ($2 :: DATE)
+           AND start_date <= ($3 :: DATE) + INTERVAL '1 day'
+           AND app_id NOT IN (
+           		SELECT app_steps.app_id::TEXT FROM app_steps
+    			JOIN tasks ON app_steps.task_id = tasks.id
+   				JOIN tools ON tasks.tool_id = tools.id
+    			JOIN tool_types ON tools.tool_type_id = tool_types.id
+    			WHERE tool_types.name = 'internal'
+           )
            GROUP BY app_name, app_id
            ORDER BY job_count DESC
            LIMIT $1`
-	rows, err := db.Query(query, amount, days)
+	rows, err := db.Query(query, amount, startDate, endDate)
 
 	if err != nil {
 		return nil, err
@@ -41,16 +32,15 @@ func GetTopApps(db *sql.DB, amount int, days int) ([]App, error){
 
 	defer rows.Close()
 
-	apps := make([]App, amount)
-	for i := 0; rows.Next(); i++{
-		err := rows.Scan(&name, &appID, &appCount)
+	var apps []App
+	for rows.Next(){
+		var app App
+		err := rows.Scan(&app.Name, &app.ID, &app.Count)
 		if err != nil {
 			return nil, err
 		}
 
-		apps[i] = App{getStringValue(name), appID, appCount}
-		output := fmt.Sprintf("App name %[1]v App ID %[2]v App Count %[3]v", getStringValue(name), appID, appCount)
-		fmt.Println(output)
+		apps = append(apps, app)
 
 	}
 	err = rows.Err()
