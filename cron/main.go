@@ -2,7 +2,9 @@ package cron
 
 import (
 	"database/sql"
-	"fmt"
+
+	"github.com/cyverse-de/dbutil"
+
 )
 
 const (
@@ -15,11 +17,13 @@ const (
 )
 
 
-func InitDB() *sql.DB{
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"dbname=%s sslmode=disable", host, port, user, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
+func InitDB(dbURI string) *sql.DB{
+	connector, err := dbutil.NewDefaultConnector("1m")
+	if err != nil {
+		panic(err)
+	}
 
+	db, err := connector.Connect("postgres", dbURI)
 	if err != nil {
 		panic(err)
 	}

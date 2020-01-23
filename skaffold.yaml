@@ -1,0 +1,14 @@
+apiVersion: skaffold/v1
+kind: Config
+metadata:
+  name: de-stats
+deploy:
+  kubectl:
+    manifests:
+      - k8s/de-stats.yml
+build:
+  tagPolicy:
+    gitCommit: {}
+  artifacts:
+    - image: discoenv/de-stats
+    local: {}
