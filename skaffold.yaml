@@ -10,5 +10,5 @@ build:
   tagPolicy:
     gitCommit: {}
   artifacts:
-    - image: discoenv/de-stats
-    local: {}
+  - image: discoenv/de-stats
+  local: {}
