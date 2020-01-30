@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"github.com/cyverse-de/de-stats/cron"
+	"github.com/cyverse-de/de-stats/logs"
 	"github.com/cyverse-de/de-stats/util"
 	"github.com/labstack/echo"
 	"net/http"
@@ -39,6 +40,7 @@ func BuildJobsHandler(db *sql.DB) func(echo.Context) error {
 		jobs, err := cron.GetJobCounts(db, startDate, endDate)
 
 		if err != nil {
+			logs.Logger.Error(err)
 			return err
 		}
 
