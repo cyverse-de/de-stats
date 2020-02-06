@@ -2,6 +2,7 @@ package cron
 
 import (
 	"database/sql"
+	"github.com/cyverse-de/de-stats/logs"
 	_ "github.com/lib/pq"
 )
 
@@ -18,10 +19,11 @@ func GetTopUsers(db *sql.DB, amount int, startDate string, endDate string) ([]Us
            GROUP BY u.username
            ORDER BY count DESC
 		   LIMIT $1;`
-
+	logs.Logger.Debug("Parameters passed to /users: amount - %s, startDate - %s, endDate - %s", amount, startDate, endDate)
 	rows, err := db.Query(query, amount, startDate, endDate)
 
 	if err != nil {
+		logs.Logger.Error(err)
 		return nil, err
 	}
 
@@ -35,12 +37,14 @@ func GetTopUsers(db *sql.DB, amount int, startDate string, endDate string) ([]Us
 		if err != nil {
 			return nil, err
 		}
+		logs.Logger.Debug("username: %s, count: %s", user.Name, user.Count)
 		users = append(users, user)
 
 	}
 
 	err = rows.Err()
 	if err != nil {
+		logs.Logger.Error(err)
 		return nil, err
 	}
 

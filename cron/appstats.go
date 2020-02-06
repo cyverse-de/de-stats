@@ -2,6 +2,7 @@ package cron
 
 import (
 	"database/sql"
+	"github.com/cyverse-de/de-stats/logs"
 	_ "github.com/lib/pq"
 )
 type App struct {
@@ -24,9 +25,10 @@ func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App
            GROUP BY app_name, app_id
            ORDER BY job_count DESC
            LIMIT $1`
+	logs.Logger.Debug("Parameters passed to /apps: amount - %s, startDate - %s, endDate - %s", amount, startDate, endDate)
 	rows, err := db.Query(query, amount, startDate, endDate)
-
 	if err != nil {
+		logs.Logger.Error(err)
 		return nil, err
 	}
 
@@ -39,12 +41,13 @@ func GetTopApps(db *sql.DB, amount int, startDate string, endDate string) ([]App
 		if err != nil {
 			return nil, err
 		}
-
+		logs.Logger.Debug("App name: %s, ID: %s, count: %s", app.Name, app.ID, app.Count)
 		apps = append(apps, app)
 
 	}
 	err = rows.Err()
 	if err != nil {
+		logs.Logger.Error(err)
 		return nil, err
 	}
 

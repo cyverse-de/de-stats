@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"github.com/cyverse-de/de-stats/logs"
 	"github.com/labstack/echo"
 	"strconv"
 	"time"
@@ -28,6 +29,7 @@ func IntQueryParam(ctx echo.Context, name string, defaultValue, minValue, maxVal
 	// Parse the query parameter.
 	value, err := strconv.Atoi(valueStr)
 	if err != nil {
+		logs.Logger.Error(err)
 		return 0, err
 	}
 
@@ -56,11 +58,13 @@ func VerifyDateParameters(ctx echo.Context) (string, string, error) {
 
 	startDate, err := StringQueryParam(ctx, "startDate", oneWeekAgo.Format(dateFormat))
 	if err != nil {
+		logs.Logger.Error(err)
 		return "", "", err
 	}
 
 	endDate, err := StringQueryParam(ctx, "endDate", currentTime.Format(dateFormat))
 	if err != nil{
+		logs.Logger.Error(err)
 		return "", "", err
 	}
 

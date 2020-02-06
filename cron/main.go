@@ -17,23 +17,23 @@ const (
 )
 
 
-func InitDB(dbURI string) *sql.DB{
+func InitDB(dbURI string) (*sql.DB, error){
 	connector, err := dbutil.NewDefaultConnector("1m")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	db, err := connector.Connect("postgres", dbURI)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return db
+	return db, nil
 }
 
 func getStringValue(s *string) string {

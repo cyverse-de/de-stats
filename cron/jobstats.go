@@ -2,6 +2,7 @@ package cron
 
 import (
 	"database/sql"
+	"github.com/cyverse-de/de-stats/logs"
 )
 
 type JobStats struct {
@@ -62,8 +63,10 @@ func GetJobCounts(db *sql.DB, startDate string, endDate string)([]JobStats, erro
 			) AS c
 			ORDER BY c.job_type, c.status`
 
+	logs.Logger.Debug("Parameters given to /jobs/counts: startDate - %s, endDate - %s", startDate, endDate)
 	rows, err := db.Query(query, startDate, endDate)
 	if err != nil {
+		logs.Logger.Error(err)
 		return nil, err;
 	}
 
@@ -77,11 +80,13 @@ func GetJobCounts(db *sql.DB, startDate string, endDate string)([]JobStats, erro
 		if err != nil {
 			return nil, err;
 		}
+		logs.Logger.Debug("Job category: %s, status: %s, count: %s", job.Category, job.Status, job.Count)
 		jobs = append(jobs, job)
 	}
 
 	err = rows.Err()
 	if err != nil {
+		logs.Logger.Error(err)
 		return nil, err
 	}
 
